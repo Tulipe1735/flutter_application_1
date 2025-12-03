@@ -3,6 +3,9 @@ import 'package:flutter_application_1/projects/widgets/nav_bar_scaffold.dart';
 import 'package:flutter_application_1/projects/widgets/ticket_bar.dart';
 import 'package:flutter_application_1/projects/widgets/train_ticket_list.dart';
 import '../utils/app_theme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'login_bloc/login_bloc.dart';
+import 'register_bloc/register_bloc.dart';
 
 void main(List<String> args) {
   runApp(MainPage());
@@ -36,6 +39,7 @@ const EdgeInsets _hPadding = EdgeInsets.symmetric(horizontal: 48.0);
 // 统一的输入框样式
 Widget _buildInputField({
   required String hintText,
+  TextEditingController? controller,
   TextInputType keyboardType = TextInputType.text,
   bool obscureText = false,
 }) {
@@ -61,6 +65,7 @@ Widget _buildInputField({
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       child: TextField(
+        controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
         style: const TextStyle(
@@ -95,7 +100,6 @@ Widget _buildLabel(String text) {
         style: const TextStyle(
           color: Color(0xFF212529),
           fontSize: 16,
-
           fontWeight: FontWeight.w400,
         ),
       ),
@@ -111,134 +115,173 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _user = TextEditingController();
+  final TextEditingController _pwd = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      //  设置整个页面的大背景颜色
-      backgroundColor: const Color(0xFFE8F0F6),
-      // 1. 使用 Center Widget 确保整个内容水平居中
-      body: Center(
-        child: SingleChildScrollView(
-          // 2. 使用 Padding 设置左右边距，取代固定的 left: 48
-          padding: _hPadding,
-          child: Column(
-            // 3. 将 Column 的所有子项左对齐 (如 Label 文本)
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // --- Title: Login ---
-              const SizedBox(height: 100), // 顶部间距
-              // 暂时使用标准 TextStyle
-              Text(
-                'Login',
-                style: TextStyle(
-                  fontSize: 36,
-                  fontFamily: "Lora",
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              const SizedBox(height: 60),
-
-              // --- Username ---
-              _buildLabel('username'),
-              _buildInputField(hintText: 'user123'),
-              const SizedBox(height: 24),
-
-              // --- Password ---
-              _buildLabel('Password'),
-              _buildInputField(hintText: '*******', obscureText: true),
-              const SizedBox(height: 24),
-
-              // --- Login Button ---
-              GestureDetector(
-                onTap: () {
-                  // 导航到 /search 路由
-                  Navigator.pushNamed(context, '/search');
-                },
-                child: Container(
-                  width: double.infinity, // 填充宽度
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  decoration: ShapeDecoration(
-                    color: const Color(0xFF4DABF7),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    shadows: const [
-                      BoxShadow(
-                        color: Color(0x334DABF7),
-                        blurRadius: 10,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Login',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 60),
-
-              // --- Registration Link and Policy ---
-              // 注册链接放在 Row 中，使其居中对齐
-              Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Doesn’t have any account?',
-                      style: TextStyle(
-                        color: Color(0xFF212529),
-                        fontSize: 14,
-
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/register');
-                      },
-                      child: const Text(
-                        'Register here',
-                        style: TextStyle(
-                          color: Color(0xFF1665A6),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // 政策文本
-              Opacity(
-                opacity: 0.40,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0), // 底部间距
-                  child: Text(
-                    'Use the application according to policy rules. Any kinds of violations will be subject to sanctions',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Color(0xFF212529),
-                      fontSize: 12,
-
+    return BlocProvider(
+      create: (_) => LoginBloc(),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFE8F0F6),
+        body: Center(
+          child: SingleChildScrollView(
+            padding: _hPadding,
+            child: BlocListener<LoginBloc, LoginState>(
+              listener: (context, state) {
+                if (state is LoginSuccess) {
+                  Navigator.pushReplacementNamed(context, '/search');
+                }
+                if (state is LoginFailure) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.message)));
+                }
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 100),
+                  const Text(
+                    'Login',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontFamily: "Lora",
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                ),
+                  const SizedBox(height: 60),
+
+                  /// Username
+                  _buildLabel('username'),
+                  _buildInputField(hintText: 'user123', controller: _user),
+                  const SizedBox(height: 24),
+
+                  /// Password
+                  _buildLabel('Password'),
+                  _buildInputField(
+                    hintText: '*******',
+                    obscureText: true,
+                    controller: _pwd,
+                  ),
+                  const SizedBox(height: 24),
+
+                  // -------------------------
+                  // LOGIN BUTTON + BlocBuilder
+                  // -------------------------
+                  BlocBuilder<LoginBloc, LoginState>(
+                    builder: (context, state) {
+                      if (state is LoginLoading) {
+                        return Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          decoration: ShapeDecoration(
+                            color: const Color(0xFF4DABF7),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                        );
+                      }
+
+                      return GestureDetector(
+                        onTap: () {
+                          context.read<LoginBloc>().add(
+                            LoginEvent(_user.text, _pwd.text),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          decoration: ShapeDecoration(
+                            color: const Color(0xFF4DABF7),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            shadows: const [
+                              BoxShadow(
+                                color: Color(0x334DABF7),
+                                blurRadius: 10,
+                                offset: Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Login',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 60),
+
+                  // 注册 Row...
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Doesn’t have any account?',
+                          style: TextStyle(
+                            color: Color(0xFF212529),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/register');
+                          },
+                          child: const Text(
+                            'Register here',
+                            style: TextStyle(
+                              color: Color(0xFF1665A6),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  Opacity(
+                    opacity: 0.40,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: Text(
+                        'Use the application according to policy rules. Any kinds of violations will be subject to sanctions',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xFF212529),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -258,153 +301,201 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final TextEditingController _user = TextEditingController();
+  final TextEditingController _pwd = TextEditingController();
+  final TextEditingController _confirmPwd = TextEditingController();
+  final TextEditingController _idNumber = TextEditingController();
+  final TextEditingController _phone = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFE8F0F6),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: _hPadding,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // --- Title: Register ---
-              const SizedBox(height: 80),
-              // 匹配原 Login 页面的标题样式
-              Text(
-                'Register',
-                style: TextStyle(
-                  fontSize: 36,
-                  fontFamily: "Lora",
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              const SizedBox(height: 60),
-
-              // --- Username ---
-              _buildLabel('username'),
-              _buildInputField(hintText: 'user123'),
-              const SizedBox(height: 24),
-
-              // --- Password ---
-              _buildLabel('Password'),
-              _buildInputField(hintText: '********', obscureText: true),
-              const SizedBox(height: 24),
-
-              // --- Confirm Password (新增字段) ---
-              _buildLabel('Confirm Password'),
-              _buildInputField(hintText: '********', obscureText: true),
-              const SizedBox(height: 24),
-
-              // --- ID Number ---
-              _buildLabel('ID number'),
-              _buildInputField(
-                hintText: '18 digit ID number',
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 24),
-
-              // --- Phone Number ---
-              _buildLabel('Phone number'),
-              _buildInputField(
-                hintText: '11 digit phone number',
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 60),
-
-              // --- Register Button ---
-              GestureDetector(
-                onTap: () {
-                  // 注册成功后，通常返回登录页或进入主页
-                  // 这里假设返回登录页 ('/')
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  decoration: ShapeDecoration(
-                    color: const Color(0xFF4DABF7),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    shadows: const [
-                      BoxShadow(
-                        color: Color(0x334DABF7),
-                        blurRadius: 10,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Register',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-
-                        fontWeight: FontWeight.w600, // 使用 W600 增强按钮文本
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 60),
-
-              // --- Login Link (Has any account ?) ---
-              Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Has any account ?',
-                      style: TextStyle(
-                        color: Color(0xFF212529),
-                        fontSize: 16,
-
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    GestureDetector(
-                      onTap: () {
-                        // 返回登录页面 ('/')
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        'Login here',
-                        style: TextStyle(
-                          color: Color(0xFF1665A6),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // 政策文本
-              Opacity(
-                opacity: 0.40,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
-                  child: Text(
-                    'By registering to account, you are agree to our terms and condition',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Color(0xFF212529),
-                      fontSize: 12,
-
+    return BlocProvider(
+      create: (_) => RegisterBloc(),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFE8F0F6),
+        body: Center(
+          child: SingleChildScrollView(
+            padding: _hPadding,
+            child: BlocListener<RegisterBloc, RegisterState>(
+              listener: (context, state) {
+                if (state is RegisterSuccess) {
+                  Navigator.pushReplacementNamed(context, '/login');
+                }
+                if (state is RegisterFailure) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.message)));
+                }
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 80),
+                  const Text(
+                    'Register',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontFamily: "Lora",
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                ),
+                  const SizedBox(height: 60),
+
+                  _buildLabel('username'),
+                  _buildInputField(controller: _user, hintText: 'user123'),
+                  const SizedBox(height: 24),
+
+                  _buildLabel('Password'),
+                  _buildInputField(
+                    controller: _pwd,
+                    hintText: '********',
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 24),
+
+                  _buildLabel('Confirm Password'),
+                  _buildInputField(
+                    controller: _confirmPwd,
+                    hintText: '********',
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 24),
+
+                  _buildLabel('ID number'),
+                  _buildInputField(
+                    controller: _idNumber,
+                    hintText: '18 digit ID number',
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 24),
+
+                  _buildLabel('Phone number'),
+                  _buildInputField(
+                    controller: _phone,
+                    hintText: '11 digit phone number',
+                    keyboardType: TextInputType.phone,
+                  ),
+                  const SizedBox(height: 60),
+
+                  // 注册按钮 BlocBuilder
+                  BlocBuilder<RegisterBloc, RegisterState>(
+                    builder: (context, state) {
+                      if (state is RegisterLoading) {
+                        return Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          decoration: ShapeDecoration(
+                            color: const Color(0xFF4DABF7),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                        );
+                      }
+
+                      return GestureDetector(
+                        onTap: () {
+                          context.read<RegisterBloc>().add(
+                            RegisterButtonPressed(
+                              username: _user.text,
+                              password: _pwd.text,
+                              confirmPassword: _confirmPwd.text,
+                              idNumber: _idNumber.text,
+                              phoneNumber: _phone.text,
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          decoration: ShapeDecoration(
+                            color: const Color(0xFF4DABF7),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            shadows: const [
+                              BoxShadow(
+                                color: Color(0x334DABF7),
+                                blurRadius: 10,
+                                offset: Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Register',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 60),
+
+                  // 返回登录页
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Has any account ?',
+                          style: TextStyle(
+                            color: Color(0xFF212529),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Login here',
+                            style: TextStyle(
+                              color: Color(0xFF1665A6),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  Opacity(
+                    opacity: 0.4,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: const Text(
+                        'By registering to account, you are agree to our terms and condition',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Color(0xFF212529),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                ],
               ),
-              const SizedBox(height: 40), // 确保底部有足够的滚动空间
-            ],
+            ),
           ),
         ),
       ),
@@ -498,291 +589,88 @@ class _MinePageState extends State<MinePage> {
 
   @override
   Widget build(BuildContext context) {
+    return Container(
+      color: Color(0xFFE8F0F6),
+      child: Column(
+        children: [
+          // —— 上面放 MinePage 的页面内容 ——
+          SingleChildScrollView(child: _buildMineContent()),
+
+          // —— 下面固定放 NavBarScaffold 提供的导航栏 ——
+          Expanded(
+            child: NavBarScaffold(
+              backgroundColor: Color(0xFFE8F0F6),
+              currentPageIndex: _selectedIndex,
+              bodyContent: Container(), // 让它不再显示内容
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 你原本的 Mine 主体写这里
+  Widget _buildMineContent() {
     return Column(
       children: [
+        const SizedBox(height: 40),
+
+        // Avatar
         Container(
-          width: 375,
-          height: 812,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(color: Colors.white),
-          child: Stack(
-            children: [
-              Positioned(
-                left: 154,
-                top: 606,
-                child: Container(
-                  width: 72,
-                  height: 72,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        left: 12,
-                        top: 6,
-                        child: Container(width: 48, height: 48, child: Stack()),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 140,
-                top: 112,
-                child: Container(
-                  width: 96,
-                  height: 96,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: ShapeDecoration(
-                    color: const Color(
-                      0xFFEADDFF,
-                    ) /* Schemes-Primary-Container */,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center, // 图标居中
-                    children: [
-                      Icon(
-                        Icons.account_circle, // 这里可以换成你想要的 avatar icon
-                        size: 48, // 图标大小
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 48,
-                top: 272,
-                child: Opacity(
-                  opacity: 0.40,
-                  child: Container(
-                    width: 280,
-                    padding: const EdgeInsets.all(10),
-                    decoration: ShapeDecoration(
-                      color: const Color(0xFFE9ECEF),
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                          width: 1,
-                          color: const Color(0xFFEDF7FE),
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 8,
-                      children: [
-                        Text(
-                          'user123',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 48,
-                top: 357,
-                child: Opacity(
-                  opacity: 0.40,
-                  child: Container(
-                    width: 280,
-                    padding: const EdgeInsets.all(10),
-                    decoration: ShapeDecoration(
-                      color: const Color(0xFFE9ECEF),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 8,
-                      children: [
-                        Text(
-                          '*******',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 58,
-                top: 248,
-                child: SizedBox(
-                  width: 82,
-                  height: 18,
-                  child: Opacity(
-                    opacity: 0.80,
-                    child: Text(
-                      'username\n',
-                      style: TextStyle(
-                        color: const Color(0xFF212529),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 58,
-                top: 333,
-                child: SizedBox(
-                  width: 82,
-                  height: 18,
-                  child: Opacity(
-                    opacity: 0.80,
-                    child: Text(
-                      'Password',
-                      style: TextStyle(
-                        color: const Color(0xFF212529),
-                        fontSize: 16,
-
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 48,
-                top: 442,
-                child: Opacity(
-                  opacity: 0.40,
-                  child: Container(
-                    width: 280,
-                    padding: const EdgeInsets.all(10),
-                    decoration: ShapeDecoration(
-                      color: const Color(0xFFE9ECEF),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 8,
-                      children: [
-                        Text(
-                          '18位数字',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 48,
-                top: 521,
-                child: Opacity(
-                  opacity: 0.40,
-                  child: Container(
-                    width: 280,
-                    padding: const EdgeInsets.all(10),
-                    decoration: ShapeDecoration(
-                      color: const Color(0xFFE9ECEF),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 8,
-                      children: [
-                        Text(
-                          '11位数字',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 58,
-                top: 419,
-                child: SizedBox(
-                  width: 82,
-                  height: 18,
-                  child: Opacity(
-                    opacity: 0.80,
-                    child: Text(
-                      'ID number',
-                      style: TextStyle(
-                        color: const Color(0xFF212529),
-                        fontSize: 16,
-
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 58,
-                top: 497,
-                child: SizedBox(
-                  width: 126,
-                  height: 18,
-                  child: Opacity(
-                    opacity: 0.80,
-                    child: Text(
-                      'Phone number',
-                      style: TextStyle(
-                        color: const Color(0xFF212529),
-                        fontSize: 16,
-
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          width: 100,
+          height: 100,
+          decoration: BoxDecoration(
+            color: const Color(0xFFEADDFF),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.account_circle,
+            size: 60,
+            color: Colors.white,
           ),
         ),
-        Expanded(
-          child: NavBarScaffold(
-            backgroundColor: Colors.white,
-            currentPageIndex: _selectedIndex,
-            bodyContent: Container(),
-          ),
-        ),
+
+        const SizedBox(height: 30),
+
+        _buildField("Username", "user123"),
+        _buildField("Password", "*******"),
+        _buildField("ID number", "18位数字"),
+        _buildField("Phone number", "11位数字"),
+
+        const SizedBox(height: 40),
       ],
+    );
+  }
+
+  Widget _buildField(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // --- 标题文字：使用 theme.titleMedium ---
+          Text(
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: const Color(0xFF212529)),
+          ),
+
+          const SizedBox(height: 5),
+
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
+
+            // --- 内容文字：使用 bodyMedium ---
+            child: Text(value, style: Theme.of(context).textTheme.bodyMedium),
+          ),
+        ],
+      ),
     );
   }
 }
