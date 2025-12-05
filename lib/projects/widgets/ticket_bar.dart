@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/projects/widgets/custom_divider.dart';
 
-class TicketBar extends StatelessWidget {
+class TicketBar extends StatefulWidget {
   const TicketBar({super.key});
+
+  @override
+  State<TicketBar> createState() => _TicketBarState();
+}
+
+class _TicketBarState extends State<TicketBar> {
+  String stationA = "Station A";
+  String stationB = "Station B";
 
   @override
   Widget build(BuildContext context) {
@@ -13,40 +21,65 @@ class TicketBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: const Color.fromRGBO(0, 0, 0, 0.1), // 建议使用带透明度的颜色
-            offset: Offset(-10, 10), // 偏移位置
-            blurRadius: 12.0, // 增加模糊，使边缘柔和
-            spreadRadius: 0.0, // 保持阴影大小不变 (或微小扩散)
+            color: const Color.fromRGBO(0, 0, 0, 0.1),
+            offset: Offset(-10, 10),
+            blurRadius: 12.0,
           ),
         ],
       ),
-
       child: Column(
         spacing: 10,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Station A",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
+              // 左侧 Station A
+              AnimatedSwitcher(
+                duration: Duration(milliseconds: 300),
+                transitionBuilder: (child, anim) =>
+                    FadeTransition(opacity: anim, child: child),
+                child: Text(
+                  stationA,
+                  key: ValueKey(stationA), // 必须用于 AnimatedSwitcher
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-              IconButton(onPressed: () {}, icon: Icon(Icons.shuffle)),
-              Text(
-                "Station B",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
+
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    final temp = stationA;
+                    stationA = stationB;
+                    stationB = temp;
+                  });
+                },
+                icon: Icon(Icons.shuffle),
+              ),
+
+              // 右侧 Station B
+              AnimatedSwitcher(
+                duration: Duration(milliseconds: 300),
+                transitionBuilder: (child, anim) =>
+                    FadeTransition(opacity: anim, child: child),
+                child: Text(
+                  stationB,
+                  key: ValueKey(stationB),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
           ),
+
           CustomDivider(),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -54,16 +87,15 @@ class TicketBar extends StatelessWidget {
                 spacing: 10,
                 children: [
                   Text(
-                    "xx / xx ",
+                    "xx / xx",
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-
                   Text(
-                    "Today ",
+                    "Today",
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 20,
@@ -72,11 +104,17 @@ class TicketBar extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(),
             ],
           ),
+
           CustomDivider(),
-          ElevatedButton(onPressed: () {}, child: Text("Check tickets")),
+
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/check');
+            },
+            child: Text("Check tickets"),
+          ),
         ],
       ),
     );

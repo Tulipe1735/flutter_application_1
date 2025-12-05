@@ -6,16 +6,16 @@ part 'login_event.dart';
 part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc() : super(LoginInitial()) {
+  LoginBloc() : super(LoginState(LoginStatus.init)) {
     on<LoginEvent>((event, emit) async {
-      emit(LoginLoading());
-      await Future.delayed(const Duration(seconds: 2)); // 模拟网络请求
+      emit(LoginState(LoginStatus.loading));
+      await Future.delayed(Duration(seconds: 2)); // 模拟网络请求
 
       // hardcode的默认username和password
       if (event.username == "user123" && event.password == "123456") {
-        emit(LoginSuccess());
+        emit(LoginState(LoginStatus.success));
       } else {
-        emit(LoginFailure("Username or password incorrect"));
+        emit(LoginState(LoginStatus.error));
       }
     });
   }

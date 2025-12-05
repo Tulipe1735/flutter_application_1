@@ -1,14 +1,8 @@
 part of 'login_bloc.dart';
 
-abstract class LoginState {}
+enum LoginStatus { init, success, error, loading }
 
-class LoginInitial extends LoginState {}
-
-class LoginLoading extends LoginState {}
-
-class LoginSuccess extends LoginState {}
-
-class LoginFailure extends LoginState {
-  final String message;
-  LoginFailure(this.message);
+class LoginState {
+  const LoginState(this.status);
+  final LoginStatus status;
 }

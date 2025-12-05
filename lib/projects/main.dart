@@ -6,6 +6,7 @@ import '../utils/app_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'login_bloc/login_bloc.dart';
 import 'register_bloc/register_bloc.dart';
+import 'pages/TicketPage.dart';
 
 void main(List<String> args) {
   runApp(MainPage());
@@ -26,6 +27,7 @@ class MainPage extends StatelessWidget {
         "/search": (context) => SearchPage(),
         "/history": (context) => HistoryPage(),
         "/Mine": (context) => MinePage(),
+        '/check': (context) => TicketPage(),
       },
     );
   }
@@ -129,13 +131,13 @@ class _LoginPageState extends State<LoginPage> {
             padding: _hPadding,
             child: BlocListener<LoginBloc, LoginState>(
               listener: (context, state) {
-                if (state is LoginSuccess) {
+                if (state.status == LoginStatus.success) {
                   Navigator.pushReplacementNamed(context, '/search');
                 }
-                if (state is LoginFailure) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(state.message)));
+                if (state.status == LoginStatus.error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Username or password incorrect")),
+                  );
                 }
               },
               child: Column(
@@ -172,23 +174,8 @@ class _LoginPageState extends State<LoginPage> {
                   // -------------------------
                   BlocBuilder<LoginBloc, LoginState>(
                     builder: (context, state) {
-                      if (state is LoginLoading) {
-                        return Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          decoration: ShapeDecoration(
-                            color: const Color(0xFF4DABF7),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          ),
-                        );
+                      if (state.status == LoginStatus.loading) {
+                        return Center(child: CircularProgressIndicator());
                       }
 
                       return GestureDetector(
@@ -318,13 +305,13 @@ class _RegisterPageState extends State<RegisterPage> {
             padding: _hPadding,
             child: BlocListener<RegisterBloc, RegisterState>(
               listener: (context, state) {
-                if (state is RegisterSuccess) {
+                if (state.status == RegisterStatus.success) {
                   Navigator.pushReplacementNamed(context, '/login');
                 }
-                if (state is RegisterFailure) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(state.message)));
+                if (state.status == RegisterStatus.error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Registration failed')),
+                  );
                 }
               },
               child: Column(
@@ -380,25 +367,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   // 注册按钮 BlocBuilder
                   BlocBuilder<RegisterBloc, RegisterState>(
                     builder: (context, state) {
-                      if (state is RegisterLoading) {
-                        return Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          decoration: ShapeDecoration(
-                            color: const Color(0xFF4DABF7),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          ),
-                        );
+                      if (state.status == RegisterStatus.loading) {
+                        return Center(child: CircularProgressIndicator());
                       }
-
                       return GestureDetector(
                         onTap: () {
                           context.read<RegisterBloc>().add(

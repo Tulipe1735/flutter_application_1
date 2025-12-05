@@ -110,9 +110,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
     String? routeName = widget.navRoutes[index];
     if (routeName != null) {
       // 移除所有旧路由，跳转到新页面
-      Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil(routeName, (Route<dynamic> route) => false);
+      Navigator.pushReplacementNamed(context, routeName);
     }
   }
 

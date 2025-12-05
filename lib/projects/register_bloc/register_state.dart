@@ -1,15 +1,8 @@
 part of 'register_bloc.dart';
 
-abstract class RegisterState {}
+enum RegisterStatus { init, success, error, loading }
 
-class RegisterInitial extends RegisterState {}
-
-class RegisterLoading extends RegisterState {}
-
-class RegisterSuccess extends RegisterState {}
-
-class RegisterFailure extends RegisterState {
-  final String message;
-
-  RegisterFailure(this.message);
+class RegisterState {
+  const RegisterState(this.status);
+  final RegisterStatus status;
 }
