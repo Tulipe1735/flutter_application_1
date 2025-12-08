@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_application_1/projects/widgets/nav_bar_scaffold.dart';
 import 'package:flutter_application_1/projects/widgets/ticket_bar.dart';
 import 'package:flutter_application_1/projects/widgets/train_ticket_list.dart';
@@ -7,8 +8,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'login_bloc/login_bloc.dart';
 import 'register_bloc/register_bloc.dart';
 import 'pages/TicketPage.dart';
+import '../di.dart';
 
 void main(List<String> args) {
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(MainPage());
 }
 
@@ -123,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => LoginBloc(),
+      create: (_) => LoginBloc(sl()),
       child: Scaffold(
         backgroundColor: const Color(0xFFE8F0F6),
         body: Center(
@@ -178,13 +182,39 @@ class _LoginPageState extends State<LoginPage> {
                         return Center(child: CircularProgressIndicator());
                       }
 
+                      // 假设你在 StatefulWidget 中有 TextEditingController:
+                      // final TextEditingController _user = TextEditingController();
+                      // final TextEditingController _pwd = TextEditingController();
+
                       return GestureDetector(
                         onTap: () {
+                          final String username = _user.text
+                              .trim(); // 使用 trim() 移除首尾空格
+                          final String password = _pwd.text;
+
+                          // --- 核心验证逻辑 ---
+                          if (username.isEmpty || password.isEmpty) {
+                            // 1. 如果任何一个字段为空，显示提示信息 (SnackBar)
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Please enter both username and password.',
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            // 2. 验证失败，立即返回，不发送事件给 BLoC
+                            return;
+                          }
+                          // --- 验证通过 ---
+
+                          // 3. 只有在验证通过时，才发送 LoginEvent 给 BLoC
                           context.read<LoginBloc>().add(
-                            LoginEvent(_user.text, _pwd.text),
+                            LoginEvent(username, password),
                           );
                         },
                         child: Container(
+                          // ... 按钮样式代码保持不变
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(vertical: 15),
                           decoration: ShapeDecoration(
@@ -297,7 +327,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => RegisterBloc(),
+      create: (_) => RegisterBloc(sl()),
       child: Scaffold(
         backgroundColor: const Color(0xFFE8F0F6),
         body: Center(
@@ -372,14 +402,29 @@ class _RegisterPageState extends State<RegisterPage> {
                       }
                       return GestureDetector(
                         onTap: () {
+                          final String username = _user.text
+                              .trim(); // 使用 trim() 移除首尾空格
+                          final String password = _pwd.text;
+
+                          // --- 核心验证逻辑 ---
+                          if (username.isEmpty || password.isEmpty) {
+                            // 1. 如果任何一个字段为空，显示提示信息 (SnackBar)
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Please enter both username and password.',
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            // 2. 验证失败，立即返回，不发送事件给 BLoC
+                            return;
+                          }
+                          // --- 验证通过 ---
+
+                          // 3. 只有在验证通过时，才发送 LoginEvent 给 BLoC
                           context.read<RegisterBloc>().add(
-                            RegisterButtonPressed(
-                              username: _user.text,
-                              password: _pwd.text,
-                              confirmPassword: _confirmPwd.text,
-                              idNumber: _idNumber.text,
-                              phoneNumber: _phone.text,
-                            ),
+                            RegisterEvent(username, password),
                           );
                         },
                         child: Container(

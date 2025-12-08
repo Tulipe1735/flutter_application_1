@@ -18,7 +18,7 @@ class TrainTicketList extends StatelessWidget {
           return TrainTicketCard(
             departureTime: ticket['departureTime'],
             arrivalTime: ticket['arrivalTime'],
-            duration: ticket['duration'],
+            trainid: ticket['trainid'],
             departureCode: ticket['departureCode'],
             arrivalCode: ticket['arrivalCode'],
             travelClass: ticket['travelClass'],

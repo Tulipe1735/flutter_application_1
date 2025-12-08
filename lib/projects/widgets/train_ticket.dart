@@ -9,7 +9,7 @@ class TrainTicketCard extends StatelessWidget {
   final String travelClass;
   final DateTime departureTime;
   final DateTime arrivalTime;
-  final String duration;
+  final String trainid;
 
   const TrainTicketCard({
     super.key,
@@ -18,7 +18,7 @@ class TrainTicketCard extends StatelessWidget {
     required this.travelClass,
     required this.departureTime,
     required this.arrivalTime,
-    required this.duration,
+    required this.trainid,
   });
 
   @override
@@ -84,7 +84,7 @@ class TrainTicketCard extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.only(top: 5),
                     child: Text(
-                      duration,
+                      trainid,
                       style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),
                   ),

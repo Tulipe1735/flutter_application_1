@@ -22,6 +22,7 @@ class NavBarScaffold extends StatelessWidget {
   ];
 
   // 模拟火车票数据
+  // 调用api时就变成trainTickets1,trainTickets2之类的了
   static List<Map<String, dynamic>> trainTickets = [
     {
       'departureCode': 'Station A',
@@ -29,7 +30,7 @@ class NavBarScaffold extends StatelessWidget {
       'travelClass': 'Executive',
       'departureTime': DateTime(2025, 1, 1, 9, 0),
       'arrivalTime': DateTime(2025, 1, 1, 16, 0),
-      'duration': '7 hours',
+      'trainid': 'G101',
     },
     {
       'departureCode': 'Station B',
@@ -37,7 +38,7 @@ class NavBarScaffold extends StatelessWidget {
       'travelClass': 'First Class',
       'departureTime': DateTime(2025, 1, 1, 10, 0),
       'arrivalTime': DateTime(2025, 1, 1, 15, 0),
-      'duration': '5 hours',
+      'trainid': 'G102',
     },
     {
       'departureCode': 'Station C',
@@ -45,7 +46,7 @@ class NavBarScaffold extends StatelessWidget {
       'travelClass': 'Second Class',
       'departureTime': DateTime(2025, 1, 1, 12, 0),
       'arrivalTime': DateTime(2025, 1, 1, 20, 0),
-      'duration': '8 hours',
+      'trainid': 'G103',
     },
   ];
 

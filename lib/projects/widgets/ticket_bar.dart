@@ -11,6 +11,7 @@ class TicketBar extends StatefulWidget {
 class _TicketBarState extends State<TicketBar> {
   String stationA = "Station A";
   String stationB = "Station B";
+  bool _isSwapping = false;
 
   @override
   Widget build(BuildContext context) {
@@ -31,47 +32,72 @@ class _TicketBarState extends State<TicketBar> {
         spacing: 10,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // 左侧 Station A
-              AnimatedSwitcher(
-                duration: Duration(milliseconds: 300),
-                transitionBuilder: (child, anim) =>
-                    FadeTransition(opacity: anim, child: child),
-                child: Text(
-                  stationA,
-                  key: ValueKey(stationA), // 必须用于 AnimatedSwitcher
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
+              // 左侧 stationA
+              Expanded(
+                child: AnimatedAlign(
+                  alignment: _isSwapping
+                      ? Alignment.center
+                      : Alignment.centerLeft,
+                  duration: Duration(milliseconds: 400),
+                  curve: Curves.easeInOut,
+                  child: AnimatedOpacity(
+                    opacity: _isSwapping ? 0.0 : 1.0,
+                    duration: Duration(milliseconds: 300),
+                    child: Text(
+                      stationA,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ),
 
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    final temp = stationA;
-                    stationA = stationB;
-                    stationB = temp;
-                  });
-                },
-                icon: Icon(Icons.shuffle),
+              // 中间旋转按钮
+              AnimatedRotation(
+                turns: _isSwapping ? 1 : 0,
+                duration: Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                child: IconButton(
+                  icon: Icon(Icons.swap_horiz),
+                  onPressed: () {
+                    setState(() {
+                      _isSwapping = true;
+                    });
+
+                    Future.delayed(Duration(milliseconds: 400), () {
+                      setState(() {
+                        // swap
+                        final temp = stationA;
+                        stationA = stationB;
+                        stationB = temp;
+                        _isSwapping = false;
+                      });
+                    });
+                  },
+                ),
               ),
 
-              // 右侧 Station B
-              AnimatedSwitcher(
-                duration: Duration(milliseconds: 300),
-                transitionBuilder: (child, anim) =>
-                    FadeTransition(opacity: anim, child: child),
-                child: Text(
-                  stationB,
-                  key: ValueKey(stationB),
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
+              // 右侧 stationB
+              Expanded(
+                child: AnimatedAlign(
+                  alignment: _isSwapping
+                      ? Alignment.center
+                      : Alignment.centerRight,
+                  duration: Duration(milliseconds: 400),
+                  curve: Curves.easeInOut,
+                  child: AnimatedOpacity(
+                    opacity: _isSwapping ? 0.0 : 1.0,
+                    duration: Duration(milliseconds: 300),
+                    child: Text(
+                      stationB,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ),
