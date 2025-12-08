@@ -5,7 +5,7 @@ import '../models/login_response.dart';
 
 part 'api_service.g.dart';
 
-@RestApi(baseUrl: " http://121.36.32.43:8081/swagger-ui/index.html")
+@RestApi(baseUrl: " http://121.36.32.43:8081/")
 abstract class ApiService {
   factory ApiService(Dio dio, {String baseUrl}) = _ApiService;
 
